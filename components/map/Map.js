@@ -1,11 +1,38 @@
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
-import { StyleSheet } from 'react-native';
+import * as Location from 'expo-location';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
 export default function Map() {
-    const [librarystatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
+    const mapRef = useRef();
+    const [libraryStatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
+    const [locationStatus, requestLocationPermission] = Location.useForegroundPermissions();
+
+    const getUserLocation = async () => {
+        let status = locationStatus;
+        if (!status?.granted) {
+            status = await requestLocationPermission();
+        }
+        if (status?.granted) {
+            const position = await Location.getCurrentPositionAsync();
+            mapRef.current?.animateToRegion(
+                {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    latitudeDelta: 0.3,
+                    longitudeDelta: 0.15,
+                },
+                2000,
+            );
+        }
+    };
+
+    useEffect(() => {
+        getUserLocation();
+    }, []);
 
     const initialRegion = {
         latitude: 37.78825,
@@ -27,11 +54,11 @@ export default function Map() {
 
     const addMarker = async (event) => {
         event.persist();
-        let status = librarystatus;
-        if (!status.granted) {
+        let status = libraryStatus;
+        if (!status?.granted) {
             status = await requestLibraryPermission();
         }
-        if (status.granted) {
+        if (status?.granted) {
             const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5 });
             console.log(result);
             if (!result.canceled) {
@@ -61,21 +88,26 @@ export default function Map() {
     };
 
     return (
-        <MapView style={styles.map} initialRegion={initialRegion} zoomControlEnabled onPress={addMarker}>
-            {markers.map((marker, index) => (
-                <Marker
-                    key={index}
-                    coordinate={marker.coordinate}
-                    draggable
-                    isPreselected
-                    stopPropagation
-                    onDragStart={dragStartHandler(index)}
-                    onDragEnd={dragEndHandler(index)}
-                >
-                    <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
-                </Marker>
-            ))}
-        </MapView>
+        <>
+            <MapView ref={mapRef} showsUserLocation style={styles.map} initialRegion={initialRegion} zoomControlEnabled onPress={addMarker}>
+                {markers.map((marker, index) => (
+                    <Marker
+                        key={index}
+                        coordinate={marker.coordinate}
+                        draggable
+                        isPreselected
+                        stopPropagation
+                        onDragStart={dragStartHandler(index)}
+                        onDragEnd={dragEndHandler(index)}
+                    >
+                        <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
+                    </Marker>
+                ))}
+            </MapView>
+            <View style={styles.btnContainer}>
+                <LocationButton onPress={getUserLocation} />
+            </View>
+        </>
     );
 }
 
@@ -83,5 +115,14 @@ export const styles = StyleSheet.create({
     map: {
         width: '100%',
         height: '100%',
+    },
+    btnContainer: {
+        position: 'absolute',
+        bottom: 30,
+        left: 40,
+        right: 40,
+        height: 60,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
     },
 });

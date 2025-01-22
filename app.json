@@ -30,6 +30,13 @@
                     {
                         "photosPermission": "L'application accède à vos photos pour les afficher sur la map"
                     }
+                ],
+                [
+                    "expo-location",
+                    {
+                        "locationAlwaysAndWhenInUsePermission": "Autoriser l'application à utiliser la localisation.",
+                        "isAndroidBackgroundLocationEnabled": true
+                    }
                 ]
             ]
         }
