@@ -1,15 +1,18 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import * as MediaLibrary from 'expo-media-library';
 import { StyleSheet, TouchableOpacity } from 'react-native';
 
 export default function PictureButton({ setMarkers }) {
     const [locationStatus, requestLocationPermission] = Location.useForegroundPermissions();
     const [cameraStatus, requestCameraPermission] = ImagePicker.useCameraPermissions();
+    const [libraryStatus, requestLibraryPermission] = MediaLibrary.usePermissions({ granularPermissions: ['photo'] });
 
     const tackePictureHandler = async () => {
         let locStatus = locationStatus;
         let camStatus = cameraStatus;
+        let libStatus = libraryStatus;
 
         if (!locStatus?.granted) {
             locStatus = await requestLocationPermission();
@@ -17,7 +20,11 @@ export default function PictureButton({ setMarkers }) {
         if (locStatus?.granted && !camStatus?.granted) {
             camStatus = await requestCameraPermission();
         }
-        if (locationStatus.granted && camStatus.granted) {
+        if (locationStatus.granted && camStatus.granted && !libStatus?.granted) {
+            libStatus = await requestLibraryPermission();
+        }
+
+        if (locationStatus.granted && camStatus.granted && libStatus.granted) {
             const picture = await ImagePicker.launchCameraAsync();
             if (!picture.canceled) {
                 const position = await Location.getCurrentPositionAsync();
@@ -32,6 +39,7 @@ export default function PictureButton({ setMarkers }) {
                         imageSource: picture.assets[0].uri,
                     },
                 ]);
+                MediaLibrary.saveToLibraryAsync(picture.assets[0].uri);
             }
         }
     };

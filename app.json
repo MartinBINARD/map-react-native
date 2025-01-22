@@ -38,6 +38,12 @@
                         "locationAlwaysAndWhenInUsePermission": "Autoriser l'application à utiliser la localisation.",
                         "isAndroidBackgroundLocationEnabled": true
                     }
+                ],
+                [
+                    "expo-media-library",
+                    {
+                        "savePhotosPermission": "Autoriser l'application à sauvegarder des photos dans la galerie"
+                    }
                 ]
             ]
         }
