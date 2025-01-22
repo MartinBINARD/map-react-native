@@ -3,6 +3,7 @@ import * as Location from 'expo-location';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import PictureButton from '../picture/PictureButton';
 import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
@@ -106,6 +107,8 @@ export default function Map() {
             </MapView>
             <View style={styles.btnContainer}>
                 <LocationButton onPress={getUserLocation} />
+                <PictureButton setMarkers={setMarkers} />
+                <View style={{ width: 60 }} />
             </View>
         </>
     );

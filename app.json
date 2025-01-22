@@ -28,7 +28,8 @@
                 [
                     "expo-image-picker",
                     {
-                        "photosPermission": "L'application accède à vos photos pour les afficher sur la map"
+                        "photosPermission": "L'application accède à vos photos pour les afficher sur la map",
+                        "cameraPermission": "L'application accède à votre appareil photo pour prendre des photos et les afficher sur la map"
                     }
                 ],
                 [
