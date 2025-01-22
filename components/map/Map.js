@@ -3,11 +3,13 @@ import * as Location from 'expo-location';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import PermissionsModal from '../permissions/PermissionsModal';
 import PictureButton from '../picture/PictureButton';
 import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
 export default function Map() {
+    const [missingPermissions, setMissingPermissions] = useState([]);
     const mapRef = useRef();
     const [libraryStatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
     const [locationStatus, requestLocationPermission] = Location.useForegroundPermissions();
@@ -28,6 +30,8 @@ export default function Map() {
                 },
                 2000,
             );
+        } else {
+            setMissingPermissions(['Votre localisation']);
         }
     };
 
@@ -59,6 +63,7 @@ export default function Map() {
         if (!status?.granted) {
             status = await requestLibraryPermission();
         }
+
         if (status?.granted) {
             const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5 });
             console.log(result);
@@ -73,6 +78,8 @@ export default function Map() {
                     },
                 ]);
             }
+        } else {
+            setMissingPermissions(["Votre galerie d'images"]);
         }
     };
 
@@ -86,6 +93,10 @@ export default function Map() {
         const markersCopy = [...markers];
         markersCopy[index].isDragging = false;
         setMarkers(markersCopy);
+    };
+
+    const closePermissionsModal = () => {
+        setMissingPermissions([]);
     };
 
     return (
@@ -107,9 +118,14 @@ export default function Map() {
             </MapView>
             <View style={styles.btnContainer}>
                 <LocationButton onPress={getUserLocation} />
-                <PictureButton setMarkers={setMarkers} />
+                <PictureButton setMarkers={setMarkers} setMissingPermissions={setMissingPermissions} />
                 <View style={{ width: 60 }} />
             </View>
+            <PermissionsModal
+                closeModal={closePermissionsModal}
+                permissions={missingPermissions}
+                isvisible={missingPermissions.length > 0}
+            />
         </>
     );
 }
