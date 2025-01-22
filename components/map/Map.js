@@ -1,9 +1,12 @@
+import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import MarkerItem from './MarkerItem';
 
 export default function Map() {
+    const [librarystatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
+
     const initialRegion = {
         latitude: 37.78825,
         longitude: -122.4324,
@@ -18,18 +21,31 @@ export default function Map() {
                 longitude: -122.4324,
             },
             isDragging: false,
+            imageSource: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUqNqnr8-J5enuQU81PuPhc_qIMSi9cIDXlQ&s',
         },
     ]);
 
-    const addMarker = (event) => {
-        const { coordinate } = event.nativeEvent;
-        setMarkers((current) => [
-            ...current,
-            {
-                coordinate: coordinate,
-                isDragging: false,
-            },
-        ]);
+    const addMarker = async (event) => {
+        event.persist();
+        let status = librarystatus;
+        if (!status.granted) {
+            status = await requestLibraryPermission();
+        }
+        if (status.granted) {
+            const result = await ImagePicker.launchImageLibraryAsync({ quality: 0.5 });
+            console.log(result);
+            if (!result.canceled) {
+                const { coordinate } = event.nativeEvent;
+                setMarkers((current) => [
+                    ...current,
+                    {
+                        coordinate: coordinate,
+                        isDragging: false,
+                        imageSource: result.assets[0].uri,
+                    },
+                ]);
+            }
+        }
     };
 
     const dragStartHandler = (index) => () => {
@@ -56,7 +72,7 @@ export default function Map() {
                     onDragStart={dragStartHandler(index)}
                     onDragEnd={dragEndHandler(index)}
                 >
-                    <MarkerItem isDragging={marker.isDragging} />
+                    <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
                 </Marker>
             ))}
         </MapView>

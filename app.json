@@ -22,6 +22,16 @@
         },
         "web": {
             "favicon": "./assets/favicon.png"
+        },
+        "expo": {
+            "plugins": [
+                [
+                    "expo-image-picker",
+                    {
+                        "photosPermission": "L'application accède à vos photos pour les afficher sur la map"
+                    }
+                ]
+            ]
         }
     }
 }
