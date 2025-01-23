@@ -12,7 +12,8 @@
             "backgroundColor": "#ffffff"
         },
         "ios": {
-            "supportsTablet": true
+            "supportsTablet": true,
+            "requireFullScreen": true
         },
         "android": {
             "adaptiveIcon": {
@@ -43,6 +44,12 @@
                     "expo-media-library",
                     {
                         "savePhotosPermission": "Autoriser l'application à sauvegarder des photos dans la galerie"
+                    }
+                ],
+                [
+                    "expo-screen-orientation",
+                    {
+                        "initialOrientation": "PORTRAIT_UP"
                     }
                 ]
             ]

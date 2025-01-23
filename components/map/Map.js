@@ -1,5 +1,6 @@
 import * as ImagePicker from 'expo-image-picker';
 import * as Location from 'expo-location';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
@@ -101,12 +102,14 @@ export default function Map() {
         setMissingPermissions([]);
     };
 
-    const displayFullPicture = (index) => () => {
+    const displayFullPictureModal = (index) => () => {
         setSelectedPicture({ index, uri: markers[index].imageSource });
+        ScreenOrientation.unlockAsync();
     };
 
     const closeFullPictureModal = () => {
         setSelectedPicture({ index: undefined, uri: undefined });
+        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     };
 
     const deleteMarker = (index) => () => {
@@ -128,7 +131,7 @@ export default function Map() {
                         stopPropagation
                         onDragStart={dragStartHandler(index)}
                         onDragEnd={dragEndHandler(index)}
-                        onPress={displayFullPicture(index)}
+                        onPress={displayFullPictureModal(index)}
                     >
                         <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
                     </Marker>
@@ -147,8 +150,8 @@ export default function Map() {
             <FullPicture
                 isVisible={!!selectedPicture.index}
                 closeModal={closeFullPictureModal}
-                imageSource={selectedPicture.uri}
                 deleteMarker={deleteMarker(selectedPicture.index)}
+                imageSource={selectedPicture.uri}
             />
         </>
     );

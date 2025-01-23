@@ -6,7 +6,12 @@ export default function FullPicture({ isVisible, closeModal, imageSource, delete
     return (
         <>
             <StatusBar style="light" />
-            <Modal visible={isVisible} animationType="fade" statusBarTranslucent>
+            <Modal
+                visible={isVisible}
+                animationType="fade"
+                statusBarTranslucent
+                supportedOrientations={['portrait', 'landscape', 'landscape-left', 'landscape-right']}
+            >
                 <Pressable style={styles.container} onPress={closeModal}>
                     <Image style={styles.image} resizeMode="contain" source={{ uri: imageSource }} />
                     <Pressable style={styles.btnContainer}>
