@@ -27,6 +27,14 @@ export const insertMarker = async ({ coordinate, imageSource }) => {
     return result.lastInsertRowId;
 };
 
+export const removeMarker = ({ id }) => {
+    db.runAsync(`DELETE FROM markers WHERE id = ${id}`);
+};
+
+export const updateMarkerCoordinate = ({ id, coordinate }) => {
+    db.runAsync(`UPDATE markers SET latitude = ${coordinate.latitude}, longitude = ${coordinate.longitude} WHERE id = ${id} `);
+};
+
 // INSERT INTO markers
 // (latitude, longitude, imageSource)
 // VALUES (

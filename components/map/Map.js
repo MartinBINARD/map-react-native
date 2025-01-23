@@ -4,7 +4,7 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import { getAllMarkers, insertMarker } from '../../utils/database';
+import { getAllMarkers, insertMarker, removeMarker } from '../../utils/database';
 import PermissionsModal from '../permissions/PermissionsModal';
 import FullPicture from '../picture/FullPicture';
 import PictureButton from '../picture/PictureButton';
@@ -12,7 +12,7 @@ import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
 export default function Map({ isDbInitialized }) {
-    const [selectedPicture, setSelectedPicture] = useState({ index: undefined, uri: undefined });
+    const [selectedPicture, setSelectedPicture] = useState({ id: undefined, uri: undefined });
     const [missingPermissions, setMissingPermissions] = useState([]);
     const mapRef = useRef();
     const [libraryStatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -80,15 +80,19 @@ export default function Map({ isDbInitialized }) {
         }
     };
 
-    const dragStartHandler = (index) => () => {
+    const dragStartHandler = (id) => () => {
         const markersCopy = [...markers];
-        markersCopy[index].isDragging = true;
+        markersCopy.find((el) => el.id === id).isDragging = true;
         setMarkers(markersCopy);
     };
 
-    const dragEndHandler = (index) => () => {
+    const dragEndHandler = (id) => async (event) => {
+        updateMarkerCoordinate({
+            id,
+            coordinate: event.nativeEvent.coordinate,
+        });
         const markersCopy = [...markers];
-        markersCopy[index].isDragging = false;
+        markersCopy.find((el) => el.id === id).isDragging = false;
         setMarkers(markersCopy);
     };
 
@@ -96,8 +100,8 @@ export default function Map({ isDbInitialized }) {
         setMissingPermissions([]);
     };
 
-    const displayFullPictureModal = (index) => () => {
-        setSelectedPicture({ index, uri: markers[index].imageSource });
+    const displayFullPictureModal = (id, imageSource) => () => {
+        setSelectedPicture({ id: id, uri: imageSource });
         ScreenOrientation.unlockAsync();
     };
 
@@ -106,9 +110,9 @@ export default function Map({ isDbInitialized }) {
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
     };
 
-    const deleteMarker = (index) => () => {
-        const markersCopy = [...markers];
-        markersCopy.splice(index, 1);
+    const deleteMarker = (id) => () => {
+        removeMarker({ id });
+        const markersCopy = markers.filter((el) => el.id !== id);
         setMarkers(markersCopy);
         closeFullPictureModal();
     };
@@ -143,9 +147,9 @@ export default function Map({ isDbInitialized }) {
                         draggable
                         isPreselected
                         stopPropagation
-                        onDragStart={dragStartHandler(index)}
-                        onDragEnd={dragEndHandler(index)}
-                        onPress={displayFullPictureModal(index)}
+                        onDragStart={dragStartHandler(marker.id)}
+                        onDragEnd={dragEndHandler(marker.id)}
+                        onPress={displayFullPictureModal(marker.id, marker.imageSource)}
                     >
                         <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
                     </Marker>
@@ -162,9 +166,9 @@ export default function Map({ isDbInitialized }) {
                 isvisible={missingPermissions.length > 0}
             />
             <FullPicture
-                isVisible={!!selectedPicture.index}
+                isVisible={!!selectedPicture.id}
                 closeModal={closeFullPictureModal}
-                deleteMarker={deleteMarker(selectedPicture.index)}
+                deleteMarker={deleteMarker(selectedPicture.id)}
                 imageSource={selectedPicture.uri}
             />
         </>
