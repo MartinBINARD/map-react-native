@@ -4,13 +4,14 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { getAllMarkers, insertMarker } from '../../utils/database';
 import PermissionsModal from '../permissions/PermissionsModal';
 import FullPicture from '../picture/FullPicture';
 import PictureButton from '../picture/PictureButton';
 import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
-export default function Map() {
+export default function Map({ isDbInitialized }) {
     const [selectedPicture, setSelectedPicture] = useState({ index: undefined, uri: undefined });
     const [missingPermissions, setMissingPermissions] = useState([]);
     const mapRef = useRef();
@@ -49,16 +50,7 @@ export default function Map() {
         longitudeDelta: 0.0421,
     };
 
-    const [markers, setMarkers] = useState([
-        {
-            coordinate: {
-                latitude: 37.78825,
-                longitude: -122.4324,
-            },
-            isDragging: false,
-            imageSource: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSUqNqnr8-J5enuQU81PuPhc_qIMSi9cIDXlQ&s',
-        },
-    ]);
+    const [markers, setMarkers] = useState([]);
 
     const addMarker = async (event) => {
         event.persist();
@@ -72,9 +64,11 @@ export default function Map() {
             console.log(result);
             if (!result.canceled) {
                 const { coordinate } = event.nativeEvent;
+                const newMarkerId = await insertMarker({ coordinate, imageSource: result.assets[0].uri });
                 setMarkers((current) => [
                     ...current,
                     {
+                        id: newMarkerId,
                         coordinate: coordinate,
                         isDragging: false,
                         imageSource: result.assets[0].uri,
@@ -119,10 +113,30 @@ export default function Map() {
         closeFullPictureModal();
     };
 
+    useEffect(() => {
+        if (isDbInitialized) {
+            getAllMarkers().then((res) => {
+                setMarkers(
+                    res.map((marker) => {
+                        return {
+                            id: marker.id,
+                            coordinate: {
+                                latitude: marker.latitude,
+                                longitude: marker.longitude,
+                            },
+                            imageSource: marker.imageSource,
+                            isDragging: false,
+                        };
+                    }),
+                );
+            });
+        }
+    }, [isDbInitialized]);
+
     return (
         <>
             <MapView ref={mapRef} showsUserLocation style={styles.map} initialRegion={initialRegion} zoomControlEnabled onPress={addMarker}>
-                {markers.map((marker, index) => (
+                {markers?.map((marker, index) => (
                     <Marker
                         key={index}
                         coordinate={marker.coordinate}
