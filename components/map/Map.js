@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import PermissionsModal from '../permissions/PermissionsModal';
+import FullPicture from '../picture/FullPicture';
 import PictureButton from '../picture/PictureButton';
 import LocationButton from './LocationButton';
 import MarkerItem from './MarkerItem';
 
 export default function Map() {
+    const [selectedPicture, setSelectedPicture] = useState({ index: undefined, uri: undefined });
     const [missingPermissions, setMissingPermissions] = useState([]);
     const mapRef = useRef();
     const [libraryStatus, requestLibraryPermission] = ImagePicker.useMediaLibraryPermissions();
@@ -99,6 +101,21 @@ export default function Map() {
         setMissingPermissions([]);
     };
 
+    const displayFullPicture = (index) => () => {
+        setSelectedPicture({ index, uri: markers[index].imageSource });
+    };
+
+    const closeFullPictureModal = () => {
+        setSelectedPicture({ index: undefined, uri: undefined });
+    };
+
+    const deleteMarker = (index) => () => {
+        const markersCopy = [...markers];
+        markersCopy.splice(index, 1);
+        setMarkers(markersCopy);
+        closeFullPictureModal();
+    };
+
     return (
         <>
             <MapView ref={mapRef} showsUserLocation style={styles.map} initialRegion={initialRegion} zoomControlEnabled onPress={addMarker}>
@@ -111,6 +128,7 @@ export default function Map() {
                         stopPropagation
                         onDragStart={dragStartHandler(index)}
                         onDragEnd={dragEndHandler(index)}
+                        onPress={displayFullPicture(index)}
                     >
                         <MarkerItem isDragging={marker.isDragging} imageSource={marker.imageSource} />
                     </Marker>
@@ -125,6 +143,12 @@ export default function Map() {
                 closeModal={closePermissionsModal}
                 permissions={missingPermissions}
                 isvisible={missingPermissions.length > 0}
+            />
+            <FullPicture
+                isVisible={!!selectedPicture.index}
+                closeModal={closeFullPictureModal}
+                imageSource={selectedPicture.uri}
+                deleteMarker={deleteMarker(selectedPicture.index)}
             />
         </>
     );
