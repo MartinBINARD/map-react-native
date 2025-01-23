@@ -1,58 +1,61 @@
 {
+  "expo": {
+    "name": "expo-sdk",
+    "slug": "expo-sdk",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
     "expo": {
-        "name": "expo-sdk",
-        "slug": "expo-sdk",
-        "version": "1.0.0",
-        "orientation": "portrait",
-        "icon": "./assets/icon.png",
-        "userInterfaceStyle": "light",
-        "splash": {
-            "image": "./assets/splash.png",
-            "resizeMode": "contain",
-            "backgroundColor": "#ffffff"
-        },
-        "ios": {
-            "supportsTablet": true,
-            "requireFullScreen": true
-        },
-        "android": {
-            "adaptiveIcon": {
-                "foregroundImage": "./assets/adaptive-icon.png",
-                "backgroundColor": "#ffffff"
-            }
-        },
-        "web": {
-            "favicon": "./assets/favicon.png"
-        },
-        "expo": {
-            "plugins": [
-                [
-                    "expo-image-picker",
-                    {
-                        "photosPermission": "L'application accède à vos photos pour les afficher sur la map",
-                        "cameraPermission": "L'application accède à votre appareil photo pour prendre des photos et les afficher sur la map"
-                    }
-                ],
-                [
-                    "expo-location",
-                    {
-                        "locationAlwaysAndWhenInUsePermission": "Autoriser l'application à utiliser la localisation.",
-                        "isAndroidBackgroundLocationEnabled": true
-                    }
-                ],
-                [
-                    "expo-media-library",
-                    {
-                        "savePhotosPermission": "Autoriser l'application à sauvegarder des photos dans la galerie"
-                    }
-                ],
-                [
-                    "expo-screen-orientation",
-                    {
-                        "initialOrientation": "PORTRAIT_UP"
-                    }
-                ]
-            ]
-        }
-    }
+      "plugins": [
+        [
+          "expo-image-picker",
+          {
+            "photosPermission": "L'application accède à vos photos pour les afficher sur la map",
+            "cameraPermission": "L'application accède à votre appareil photo pour prendre des photos et les afficher sur la map"
+          }
+        ],
+        [
+          "expo-location",
+          {
+            "locationAlwaysAndWhenInUsePermission": "Autoriser l'application à utiliser la localisation.",
+            "isAndroidBackgroundLocationEnabled": true
+          }
+        ],
+        [
+          "expo-media-library",
+          {
+            "savePhotosPermission": "Autoriser l'application à sauvegarder des photos dans la galerie"
+          }
+        ],
+        [
+          "expo-screen-orientation",
+          {
+            "initialOrientation": "PORTRAIT_UP"
+          }
+        ]
+      ]
+    },
+    "plugins": [
+      "expo-sqlite"
+    ]
+  }
 }
